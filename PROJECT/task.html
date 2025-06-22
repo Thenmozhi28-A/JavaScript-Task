@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Progress Tracker</title>
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    .student {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .pass { color: green; }
+    .fail { color: red; }
+    .date { font-size: 12px; color: gray; }
+    button.delete {
+      margin-left: 20px;
+      background-color: crimson;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+
+   <h2>🎓 Student Progress Tracker</h2>
+  <input type="text" id="name" placeholder="Student Name">
+  <input type="number" id="marks" placeholder="Marks">
+  <button id="add">Add Student</button>
+
+  <h3>📋 Student List:</h3>
+  <div id="list"></div>
+
+  <script>
+    const nameInput = document.getElementById("name");
+    const marksInput = document.getElementById("marks");
+    const addBtn = document.getElementById("add");
+    const list = document.getElementById("list");
+
+    let students = JSON.parse(localStorage.getItem("students")) || [];
+
+    function saveToLocalStorage() {
+      localStorage.setItem("students", JSON.stringify(students));
+    }
+
+    function formatDate(date) {
+      return new Date(date).toLocaleString();
+    }
+
+    function displayStudents() {
+      list.innerHTML = "";
+      students.forEach((student, index) => {
+        const div = document.createElement("div");
+        div.classList.add("student");
+
+        const statusClass = student.marks >= 35 ? "pass" : "fail";
+        const statusText = student.marks >= 35 ? "✅ Pass" : "❌ Fail";
+
+        div.innerHTML = `
+          <strong>${student.name}</strong> - Marks: ${student.marks} 
+          <span class="${statusClass}">${statusText}</span><br>
+          <span class="date">Added on: ${formatDate(student.date)}</span>
+          <button class="delete" onclick="deleteStudent(${index})">Delete</button>
+        `;
+
+        list.appendChild(div);
+      });
+    }
+
+    function deleteStudent(index) {
+      students.splice(index, 1);
+      saveToLocalStorage();
+      displayStudents();
+    }
+
+    function addStudent() {
+      const name = nameInput.value.trim();
+      const marks = Number(marksInput.value);
+
+      if (!name || isNaN(marks)) {
+        alert("❗ Please enter valid name and marks.");
+        return;
+      }
+
+      const student = {
+        name,
+        marks,
+        date: new Date()
+      };
+
+      students.push(student);
+      saveToLocalStorage();
+      displayStudents();
+
+      nameInput.value = "";
+      marksInput.value = "";
+    }
+
+    addBtn.addEventListener("click", addStudent);
+
+    // Show saved students on page load
+    displayStudents();
+  </script>
+
+</body>
+</html>
